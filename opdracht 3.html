@@ -193,7 +193,7 @@ main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 <div class="layout">
   <aside class="sidebar" aria-label="Opdracht en uitleg">
     <div>
-      <div class="eyebrow">Les 2</div>
+      <div class="eyebrow">Oefening Poorten</div>
       <h2 class="exercise-title">Schakeling in vier lagen</h2>
     </div>
 
@@ -371,7 +371,7 @@ main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
     { k: 's', h: 'S<br>P OR R' },
     { k: 't', h: 'T<br>S AND D' }
   ];
-  var state = { vals: { A: Number(Math.random() < 0.5), B: Number(Math.random() < 0.5), C: Number(Math.random() < 0.5), D: Number(Math.random() < 0.5) }, help: true, rows: [] };
+  var state = { vals: { A: Number(Math.random() < 0.5), B: Number(Math.random() < 0.5), C: Number(Math.random() < 0.5), D: Number(Math.random() < 0.5), E: Number(Math.random() < 0.5), F: Number(Math.random() < 0.5) }, help: true, rows: [] };
   
   if (truth(state).q == 0) {
 	  state.D = 1;
@@ -386,25 +386,49 @@ main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
     return { p: p, r: r, s: s, t: t, q: 1 - t };
   }
   
-  var def = {
-    w: 620, h: 200,
-    inputs: [
-      { id: 'A', x: 10, y: 8 },   { id: 'B', x: 10, y: 52 },
-      { id: 'C', x: 10, y: 102 }, { id: 'D', x: 10, y: 160 }
-    ],
-    layers: [
-      { x: 150, label: 'laag 1' }, { x: 240, label: 'laag 2' },
-      { x: 330, label: 'laag 3' }, { x: 430, label: 'laag 4' }
-    ],
-    gates: [
-      { id: 'p', type: 'AND', x: 150, y: 30,  ins: ['A', 'B'], tag: 'P' },
-      { id: 'r', type: 'NOT', x: 150, y: 96,  ins: ['C'],      tag: 'R' },
-      { id: 's', type: 'OR',  x: 240, y: 64,  ins: ['p', 'r'], tag: 'S' },
-      { id: 't', type: 'AND', x: 330, y: 110, ins: ['s', 'D'], tag: 'T' },
-      { id: 'q', type: 'NOT', x: 430, y: 110, ins: ['t'] }
-    ],
-    out: { x: 540, y: 132, src: 'q', label: 'Q' }
-  };
+  //var def = {
+    //w: 620, h: 200,
+    //inputs: [
+      //{ id: 'A', x: 10, y: 8 },   { id: 'B', x: 10, y: 52 },
+      //{ id: 'C', x: 10, y: 102 }, { id: 'D', x: 10, y: 160 }
+    //],
+    //layers: [
+      //{ x: 150, label: 'laag 1' }, { x: 240, label: 'laag 2' },
+      //{ x: 330, label: 'laag 3' }, { x: 430, label: 'laag 4' }
+    //],
+    //gates: [
+      //{ id: 'p', type: 'AND', x: 150, y: 30,  ins: ['A', 'B'], tag: 'P' },
+      //{ id: 'r', type: 'NOT', x: 150, y: 96,  ins: ['C'],      tag: 'R' },
+      //{ id: 's', type: 'OR',  x: 240, y: 64,  ins: ['p', 'r'], tag: 'S' },
+      //{ id: 't', type: 'XOR', x: 330, y: 110, ins: ['s', 'D'], tag: 'T' },
+      //{ id: 'q', type: 'NOT', x: 430, y: 110, ins: ['t'] }
+    //],
+    //out: { x: 540, y: 132, src: 'q', label: 'Q' }
+  //};
+
+var def = {
+  w: 620, h: 290,
+  inputs: [
+    { id: 'A', x: 10, y: 8 },   { id: 'B', x: 10, y: 52 },
+    { id: 'C', x: 10, y: 102 }, { id: 'D', x: 10, y: 148 },
+    { id: 'E', x: 10, y: 192 }, { id: 'F', x: 10, y: 240 }
+  ],
+  layers: [
+    { x: 150, label: 'laag 1' }, { x: 240, label: 'laag 2' },
+    { x: 330, label: 'laag 3' }, { x: 430, label: 'laag 4' }
+  ],
+  gates: [
+    { id: 'p', type: 'AND', x: 150, y: 30,  ins: ['A', 'B'], tag: 'P' },
+    { id: 'r', type: 'NOT', x: 150, y: 96,  ins: ['C'],      tag: 'R' },
+    { id: 'u', type: 'AND', x: 150, y: 148, ins: ['D', 'E'], tag: 'U' },
+    { id: 'w', type: 'NOT', x: 150, y: 236, ins: ['F'],      tag: 'W' },
+    { id: 's', type: 'OR',  x: 240, y: 64,  ins: ['p', 'r'], tag: 'S' },
+    { id: 'x', type: 'OR',  x: 240, y: 200, ins: ['u', 'w'], tag: 'X' },
+    { id: 't', type: 'XOR', x: 330, y: 130, ins: ['s', 'x'], tag: 'T' },
+    { id: 'q', type: 'NOT', x: 430, y: 130, ins: ['t'] }
+  ],
+  out: { x: 540, y: 152, src: 'q', label: 'Q' }
+};
 
   var circuitEl = document.getElementById('circuit');
   var tableEl = document.getElementById('table');
