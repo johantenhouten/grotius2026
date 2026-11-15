@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complexe schakeling</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --fg: #0e1b29;
+  --muted: #566677;
+  --line: #ccd6e0;
+  --accent: #1f4fd1;
+  --accent-soft: #dfe8fb;
+  --on: #0a8a66;
+  --on-ink: #ffffff;
+  --on-soft: #d3f0e6;
+  --off: #8896a4;
+  --bad: #b73232;
+  --bad-soft: #f8dddd;
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b131b; --surface: #121d28; --fg: #e5edf5; --muted: #90a2b3; --line: #29394a;
+    --accent: #86abff; --accent-soft: #1a2a4a; --on: #3ddba0; --on-ink: #04221a; --on-soft: #11382c;
+    --off: #5c6d7d; --bad: #ff8585; --bad-soft: #3b1d1d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b131b; --surface: #121d28; --fg: #e5edf5; --muted: #90a2b3; --line: #29394a;
+  --accent: #86abff; --accent-soft: #1a2a4a; --on: #3ddba0; --on-ink: #04221a; --on-soft: #11382c;
+  --off: #5c6d7d; --bad: #ff8585; --bad-soft: #3b1d1d;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  padding-block: 0 40px;
+}
+
+h1 { font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 0; text-wrap: balance; }
+p { margin: 0; max-width: 65ch; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.dot.on { background: var(--on); }
+.dot.off { background: var(--off); }
+.task { background: var(--accent-soft); border-radius: 6px; padding: 12px 14px; max-width: 65ch; }
+.task strong { font-weight: 600; }
+.task ol { margin: 6px 0 0; padding-left: 22px; }
+
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; }
+.scroll { overflow-x: auto; }
+.scroll svg { display: block; width: 100%; min-width: 580px; max-width: 720px; height: auto; margin-inline: auto; }
+
+svg text { font-family: var(--font-mono); fill: var(--fg); }
+.wire { fill: none; stroke: var(--off); stroke-width: 3; stroke-linejoin: round; }
+.wire.on { stroke: var(--on); }
+.g path, .g circle { fill: var(--surface); stroke: var(--fg); stroke-width: 2; }
+.g path.open { fill: none; }
+.g text { font-size: 11px; font-weight: 600; text-anchor: middle; }
+.in { cursor: pointer; }
+.in rect { fill: var(--surface); stroke: var(--fg); stroke-width: 2; }
+.in.on rect { fill: var(--on); stroke: var(--on); }
+.in text.lbl { font-size: 13px; fill: var(--muted); font-weight: 600; }
+.in text.val { font-size: 16px; font-weight: 600; text-anchor: middle; }
+.in.on text { fill: var(--on-ink); }
+.in:focus-visible { outline: none; }
+.in:focus-visible rect { stroke: var(--accent); stroke-width: 4; }
+.in:hover rect { stroke: var(--accent); }
+.lamp { fill: var(--surface); stroke: var(--fg); stroke-width: 2; }
+.lamp.on { fill: var(--on); stroke: var(--on); }
+.out-text { font-size: 14px; font-weight: 600; }
+.tag { font-size: 12px; fill: var(--muted); font-weight: 600; }
+.layer { font-size: 11px; fill: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+.btn { font: 500 14px var(--font-body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; cursor: pointer; min-height: 40px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--surface); border-color: var(--accent); font-weight: 600; }
+.btn:focus-visible, .cell:focus-visible, td.pick:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; font-family: var(--font-mono); font-size: 14px; }
+th, td { border: 1px solid var(--line); padding: 1px 8px; text-align: center; min-width: 40px; }
+th { background: var(--surface); font-weight: 600; font-size: 12px; }
+th.q, td.q { border-left: 2px solid var(--fg); }
+tr.now td { background: var(--accent-soft); }
+td.pick { cursor: pointer; }
+td.pick:hover { background: var(--accent-soft); }
+.cell { width: 34px; height: 26px; font: 600 14px var(--font-mono); color: var(--fg); background: var(--surface); border: 1px dashed var(--off); border-radius: 4px; cursor: pointer; }
+.cell.set { border-style: solid; border-color: var(--fg); }
+.cell.ok { background: var(--on-soft); border: 2px solid var(--on); }
+.cell.bad { background: var(--bad-soft); border: 2px solid var(--bad); }
+
+.status { min-height: 1.6em; font-weight: 500; }
+.status.good { color: var(--on); }
+.status.warn { color: var(--bad); }
+.hint { color: var(--muted); font-size: 14px; max-width: 65ch; }
+.formula { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.formula code { font: 600 15px var(--font-mono); overflow-wrap: anywhere; }
+.question { border-top: 2px solid var(--fg); padding-top: 14px; max-width: 65ch; }
+@media (prefers-reduced-motion: no-preference) {
+  .wire, .lamp, .in rect { transition: stroke 0.15s, fill 0.15s; }
+}
+
+/* ---- Zijbalk ---- */
+.layout { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: minmax(260px, 330px) minmax(0, 1fr); gap: 24px; align-items: start; padding-top: 20px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.sidebar { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+.exercise-title { margin: 0; font: 700 clamp(1.5rem, 3vw, 1.9rem)/1.1 var(--font-display); letter-spacing: -0.01em; text-wrap: balance; }
+
+/* ---- Paginakop ---- */
+.site-header { background: var(--fg); color: var(--bg); }
+.site-header .wrap { max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { width: 38px; height: 28px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.brand-name { margin: 0; font: 700 1.4rem/1 var(--font-display); letter-spacing: -0.01em; }
+.header-meta { font: 500 13px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.8; }
+.side-block { display: flex; flex-direction: column; gap: 8px; }
+.side-block p, .side-block li { font-size: 15px; }
+.side-block ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.side-title { margin: 0; font: 600 12px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btns .primary { grid-column: 1 / -1; }
+.sidebar .legend { flex-direction: column; gap: 6px; }
+.sidebar .status { min-height: 0; }
+
+.brand,
+.brand:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { position: static; max-height: none; overflow-y: visible; }
+}
+
+/* ---- Modal bij een juist ingevulde tabel ---- */
+.modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(4, 10, 16, 0.74); backdrop-filter: blur(3px); }
+.modal-dialog { width: 100%; max-width: 440px; }
+.modal-content { position: relative; overflow: hidden; background: var(--surface); color: var(--fg); border: 2px solid var(--on); border-radius: 14px; box-shadow: 0 0 0 6px var(--on-soft), 0 0 60px color-mix(in srgb, var(--on) 55%, transparent), 0 24px 60px rgba(0, 0, 0, 0.5); }
+.modal-header { background: var(--on); color: var(--on-ink); padding: 18px 20px 14px; text-align: center; position: relative; z-index: 1; }
+.modal-header .kicker { font: 600 12px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85; }
+.modal-header h4 { margin: 2px 0 0; font: 700 clamp(2.2rem, 9vw, 3rem)/1 var(--font-display); letter-spacing: -0.02em; }
+.modal-body { position: relative; z-index: 1; padding: 26px 22px 8px; display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; }
+.modal-body p { margin-inline: auto; }
+.modal-footer { position: relative; z-index: 1; padding: 8px 22px 22px; display: flex; justify-content: center; }
+.lamp-big { position: relative; width: 96px; height: 96px; border-radius: 50%; background: var(--on); color: var(--on-ink); display: grid; place-items: center; font: 700 44px var(--font-mono); box-shadow: 0 0 36px color-mix(in srgb, var(--on) 70%, transparent); }
+.lamp-big i { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--on); opacity: 0; }
+.confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 2; }
+.confetti span { position: absolute; top: -14px; width: 8px; height: 14px; border-radius: 2px; opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .modal { animation: fadein 0.2s ease-out; }
+  .modal-content { animation: pop 0.45s cubic-bezier(0.2, 1.5, 0.4, 1); }
+  .modal-header h4 { animation: bump 0.6s 0.15s both; }
+  .lamp-big { animation: glow 1.4s ease-in-out infinite; }
+  .lamp-big i { animation: ring 1.8s ease-out infinite; }
+  .lamp-big i:nth-child(2) { animation-delay: 0.6s; }
+  .lamp-big i:nth-child(3) { animation-delay: 1.2s; }
+  .confetti span { animation: fall var(--d, 2.4s) linear var(--delay, 0s) forwards; }
+}
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { transform: scale(0.6) translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes bump { 0% { transform: scale(0.4); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+@keyframes ring { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(2.4); opacity: 0; } }
+@keyframes glow { 50% { transform: scale(1.06); } }
+@keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(540px) rotate(var(--r, 540deg)); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="https://johantenhouten.github.io/grotius2026/" aria-label="Logische poorten — naar de hoofdpagina">
+      <svg class="brand-mark" viewBox="0 0 38 28" aria-hidden="true" focusable="false">
+        <path d="M8 3H20A11 11 0 0 1 20 25H8Z"/>
+        <path d="M1 9H8M1 19H8M31 14H37"/>
+      </svg>
+      <h1 class="brand-name">Logische poorten</h1>
+    </a>
+    <div class="header-meta">Coteach Informatica - Computer Architectuur</div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Opdracht en uitleg">
+    <div>
+      <div class="eyebrow">Logische Poorten</div>
+      <h2 class="exercise-title">Complexe Schakeling</h2>
+    </div>
+
+    <section class="side-block">
+      <h2 class="side-title">Hulp</h2>
+      <div class="legend" aria-label="Legenda">
+        <span><i class="dot on"></i> groen = 1 (aan, stroom)</span>
+        <span><i class="dot off"></i> grijs = 0 (uit, geen stroom)</span>
+      </div>
+      <p>Deze schakeling heeft AND-, OR-, XOR- en NOT-poorten in vier lagen. Het signaal gaat van links naar rechts.</p>
+    </section>
+
+    <section class="side-block task">
+      <h2 class="side-title">Opdrachten</h2>
+      <ol>
+        <li>Klik op de schakelaars A B C D F om de uitvoer Q helemaal rechts op 1 te krijgen.</li>
+        <li>Vul de waarheidstabel in. Werk per laag: eerst P, R en W, dan S en X, dan T en tot slot Q. Klik op een vakje om te wisselen tussen 0 en 1.</li>
+      </ol>
+    </section>
+
+    <section class="side-block">
+      <h2 class="side-title">Controle</h2>
+      <div class="btns">
+        <button class="btn primary" id="check" type="button">Controleer antwoorden</button>
+        <button class="btn primary" id="clear" type="button">Wis tabel</button>
+        <!-- verborgen knoppen -->
+        <button class="btn" id="formula-btn" hidden type="button" aria-controls="formula" aria-expanded="false">Toon formule</button>
+        <button class="btn" id="reveal" hidden type="button">Toon antwoord</button>
+      </div>
+      <label class="check" hidden for="help"><input type="checkbox" id="help" checked> Toon hulpkolommen P t/m T</label>
+      <p class="status" id="status" role="status"></p>
+      <div class="formula" id="formula" hidden>
+        <code>Q = NOT ( ( (A AND B) OR (NOT C) ) XOR ( D AND (NOT F) ) )</code>
+        <span class="hint">Van binnen naar buiten: P = A AND B, R = NOT C, W = NOT F, S = P OR R, X = D AND W, T = S XOR X, Q = NOT T.</span>
+      </div>
+    </section>
+  </aside>
+
+  <main>
+    <div class="stage scroll" id="circuit"></div>
+    <div class="tablewrap" id="table"></div>
+  </main>
+</div>
+
+<div class="modal" id="success" role="dialog" aria-modal="true" aria-labelledby="success-title" hidden>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="confetti" id="confetti" aria-hidden="true"></div>
+      <div class="modal-header">
+        <div class="kicker">Opdracht voltooid</div>
+        <h4 id="success-title">Alles goed!</h4>
+      </div>
+      <div class="modal-body">
+        <div class="lamp-big" aria-hidden="true"><i></i><i></i><i></i>✓</div>
+        <p id="success-text"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn primary" id="success-close">Sluiten</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var FN = {
+    AND: function (a, b) { return a & b; },
+    OR: function (a, b) { return a | b; },
+    XOR: function (a, b) { return a ^ b; },
+    NAND: function (a, b) { return 1 - (a & b); },
+    NOR: function (a, b) { return 1 - (a | b); },
+    NOT: function (a) { return 1 - a; }
+  };
+  var OUTX = { AND: 52, NAND: 60, OR: 52, NOR: 60, XOR: 52, NOT: 48 };
+  function pinY(t, i) { return t === 'NOT' ? 22 : (i ? 33 : 11); }
+
+  function shape(t) {
+    var body;
+    if (t === 'AND' || t === 'NAND') body = '<path d="M0 0H26A22 22 0 0 1 26 44H0Z"/>';
+    else if (t === 'OR' || t === 'NOR') body = '<path d="M0 0Q30 0 52 22Q30 44 0 44Q14 22 0 0Z"/>';
+    else if (t === 'XOR') body = '<path d="M5 0Q32 0 52 22Q32 44 5 44Q19 22 5 0Z"/><path class="open" d="M0 0Q14 22 0 44"/>';
+    else body = '<path d="M0 3L40 22L0 41Z"/>';
+    if (t === 'NAND' || t === 'NOR') body += '<circle cx="56" cy="22" r="4"/>';
+    if (t === 'NOT') body += '<circle cx="44" cy="22" r="4"/>';
+    var lx = t === 'NOT' ? 14 : (t === 'XOR' ? 26 : 24);
+    return body + (t === 'NOT' ? '' : '<text x="' + lx + '" y="26">' + t + '</text>');
+  }
+
+  function evalCircuit(def, vals) {
+    var v = {};
+    def.inputs.forEach(function (i) { v[i.id] = vals[i.id]; });
+    def.gates.forEach(function (g) {
+      v[g.id] = FN[g.type].apply(null, g.ins.map(function (s) { return v[s]; }));
+    });
+    return v;
+  }
+  function srcPt(def, id) {
+    var i = def.inputs.filter(function (n) { return n.id === id; })[0];
+    if (i) return [i.x + 48, i.y + 16];
+    var g = def.gates.filter(function (n) { return n.id === id; })[0];
+    return [g.x + OUTX[g.type], g.y + 22];
+  }
+  function drawCircuit(def, vals) {
+    var v = evalCircuit(def, vals);
+    var off = '', on = '';
+    function wire(x1, y1, x2, y2, val) {
+      var xm = Math.round((x1 + x2) / 2);
+      var p = '<path class="wire' + (val ? ' on' : '') + '" d="M' + x1 + ' ' + y1 + 'H' + xm + 'V' + y2 + 'H' + x2 + '"/>';
+      if (val) on += p; else off += p;
+    }
+    def.gates.forEach(function (g) {
+      g.ins.forEach(function (s, i) {
+        var p = srcPt(def, s);
+        wire(p[0], p[1], g.x, g.y + pinY(g.type, i), v[s]);
+      });
+    });
+    var op = srcPt(def, def.out.src);
+    wire(op[0], op[1], def.out.x - 14, def.out.y, v[def.out.src]);
+
+    var nodes = '';
+    (def.layers || []).forEach(function (l) {
+      nodes += '<text class="layer" x="' + l.x + '" y="16">' + l.label + '</text>';
+    });
+    def.gates.forEach(function (g) {
+      nodes += '<g class="g" transform="translate(' + g.x + ',' + g.y + ')">' + shape(g.type) + '</g>';
+      if (g.tag) nodes += '<text class="tag" x="' + (g.x + OUTX[g.type] + 6) + '" y="' + (g.y + 14) + '">' + g.tag + '</text>';
+    });
+    def.inputs.forEach(function (i) {
+      var val = vals[i.id];
+      nodes += '<g class="in' + (val ? ' on' : '') + '" data-in="' + i.id + '" tabindex="0" role="button" aria-label="Schakelaar ' + i.id + ', staat op ' + val + '" transform="translate(' + i.x + ',' + i.y + ')">' +
+        '<rect width="48" height="32" rx="6"/><text class="lbl" x="9" y="21">' + i.id + '</text><text class="val" x="34" y="22">' + val + '</text></g>';
+    });
+    var q = v[def.out.src];
+    nodes += '<g transform="translate(' + def.out.x + ',' + def.out.y + ')"><circle class="lamp' + (q ? ' on' : '') + '" r="14"/>' +
+      '<text class="out-text" x="24" y="5">' + def.out.label + ' = ' + q + '</text></g>';
+    return '<svg viewBox="0 0 ' + def.w + ' ' + def.h + '" role="img" aria-label="Schakeling met vier lagen poorten, uitvoer ' + def.out.label + ' is ' + q + '">' + off + on + nodes + '</svg>';
+  }
+  function bindInputs(el, vals, rerender) {
+    function toggle(t) {
+      var n = t.closest('[data-in]');
+      if (!n) return;
+      var id = n.getAttribute('data-in');
+      vals[id] = 1 - vals[id];
+      rerender();
+      var again = el.querySelector('[data-in="' + id + '"]');
+      if (again) again.focus();
+    }
+    el.addEventListener('click', function (e) { toggle(e.target); });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e.target); }
+    });
+  }
+  function combos(n) {
+    var rows = [];
+    for (var i = 0; i < (1 << n); i++) {
+      var r = [];
+      for (var b = n - 1; b >= 0; b--) r.push((i >> b) & 1);
+      rows.push(r);
+    }
+    return rows;
+  }
+
+  /* ---- De opdracht: Q = NOT( ((A AND B) OR (NOT C)) XOR (D AND (NOT F)) ) ---- */
+  var KEYS = ['p', 'r', 'w', 's', 'x', 't', 'q'];
+  var COLS = [
+    { k: 'p', h: 'P<br>A AND B' },
+    { k: 'r', h: 'R<br>NOT C' },
+    { k: 'w', h: 'W<br>NOT F' },
+    { k: 's', h: 'S<br>P OR R' },
+    { k: 'x', h: 'X<br>D AND W' },
+    { k: 't', h: 'T<br>S XOR X' }
+  ];
+  var state = { vals: {
+    A: Number(Math.random() < 0.5),
+    B: Number(Math.random() < 0.5),
+    C: Number(Math.random() < 0.5),
+    D: Number(Math.random() < 0.5),
+    F: Number(Math.random() < 0.5) }, help: true, rows: [] };
+
+  combos(5).forEach(function (r) {
+    state.rows.push({ a: r[0], b: r[1], c: r[2], d: r[3], f: r[4],
+                      p: null, r: null, w: null, s: null, x: null, t: null, q: null, m: {} });
+  });
+
+  function truth(row) {
+    var p = row.a & row.b, r = 1 - row.c, s = p | r;
+    var w = 1 - row.f, x = row.d & w;
+    var t = s ^ x;
+    return { p: p, r: r, w: w, s: s, x: x, t: t, q: 1 - t };
+  }
+
+  var def = {
+    w: 620, h: 250,
+    inputs: [
+      { id: 'A', x: 10, y: 8 },   { id: 'B', x: 10, y: 52 },
+      { id: 'C', x: 10, y: 102 }, { id: 'D', x: 10, y: 148 },
+      { id: 'F', x: 10, y: 196 }
+    ],
+    layers: [
+      { x: 150, label: 'laag 1' }, { x: 240, label: 'laag 2' },
+      { x: 330, label: 'laag 3' }, { x: 430, label: 'laag 4' }
+    ],
+    gates: [
+      { id: 'p', type: 'AND', x: 150, y: 30,  ins: ['A', 'B'], tag: 'P' },
+      { id: 'r', type: 'NOT', x: 150, y: 96,  ins: ['C'],      tag: 'R' },
+      { id: 'w', type: 'NOT', x: 150, y: 190, ins: ['F'],      tag: 'W' },
+      { id: 's', type: 'OR',  x: 240, y: 64,  ins: ['p', 'r'], tag: 'S' },
+      { id: 'x', type: 'AND', x: 240, y: 150, ins: ['D', 'w'], tag: 'X' },
+      { id: 't', type: 'XOR', x: 330, y: 130, ins: ['s', 'x'], tag: 'T' },
+      { id: 'q', type: 'NOT', x: 430, y: 130, ins: ['t'] }
+    ],
+    out: { x: 540, y: 152, src: 'q', label: 'Q' }
+  };
+
+  var circuitEl = document.getElementById('circuit');
+  var tableEl = document.getElementById('table');
+  var statusEl = document.getElementById('status');
+
+  function setStatus(text, cls) { statusEl.textContent = text; statusEl.className = 'status' + (cls ? ' ' + cls : ''); }
+
+  /* ---- Modal ---- */
+  var modal = document.getElementById('success');
+  var modalClose = document.getElementById('success-close');
+  var confettiEl = document.getElementById('confetti');
+  var mainEl = document.querySelector('.layout');
+  var openedAt = 0;
+
+  function burst() {
+    var colors = ['var(--on)', 'var(--accent)', 'var(--bad)', 'var(--off)'], h = '';
+    for (var i = 0; i < 44; i++) {
+      h += '<span style="left:' + Math.round(Math.random() * 100) + '%;background:' + colors[i % colors.length] +
+        ';--d:' + (1.8 + Math.random() * 1.6).toFixed(2) + 's;--delay:' + (Math.random() * 0.7).toFixed(2) +
+        's;--r:' + Math.round(360 + Math.random() * 540) + 'deg"></span>';
+    }
+    confettiEl.innerHTML = h;
+  }
+  function openModal() {
+    document.getElementById('success-text').textContent =
+      'Jij bent de echte digitale kanjer. Je hebt de schakeling en de waarheidstabel goed ingevuld.';
+    openedAt = Date.now();
+    burst();
+    modal.hidden = false;
+    mainEl.inert = true;
+    setTimeout(function () { modalClose.focus(); }, 0);
+  }
+
+  function closeModal() {
+    if (Date.now() - openedAt < 400) return;
+    modal.hidden = true;
+    mainEl.inert = false;
+    confettiEl.innerHTML = '';
+    document.getElementById('check').focus();
+  }
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (modal.hidden) return;
+    if (e.key === 'Escape') closeModal();
+    else if (e.key === 'Tab') { e.preventDefault(); modalClose.focus(); }
+  });
+
+  /* ---- Schakeling en tabel ---- */
+  function renderCircuit() { circuitEl.innerHTML = drawCircuit(def, state.vals); renderTable(); }
+
+  function cellHtml(i, k) {
+    var row = state.rows[i], val = row[k], mark = row.m[k] || '';
+    return '<td><button type="button" class="cell' + (val !== null ? ' set' : '') + (mark ? ' ' + mark : '') + '" data-i="' + i + '" data-k="' + k + '" aria-label="Rij ' + (i + 1) + ', kolom ' + k.toUpperCase() + ': ' + (val === null ? 'leeg' : val) + '">' + (val === null ? '·' : val) + '</button></td>';
+  }
+
+  function renderTable() {
+    var h = '<table><thead><tr><th>A</th><th>B</th><th>C</th><th>D</th><th>F</th>';
+    if (state.help) COLS.forEach(function (c) { h += '<th>' + c.h + '</th>'; });
+    h += '<th class="q">Q<br>' + (state.help ? 'NOT T' : 'uitvoer') + '</th></tr></thead><tbody>';
+    state.rows.forEach(function (row, i) {
+      var now = row.a === state.vals.A && row.b === state.vals.B && row.c === state.vals.C &&
+                row.d === state.vals.D && row.f === state.vals.F;
+      h += '<tr' + (now ? ' class="now"' : '') + '>' +
+        ['a', 'b', 'c', 'd', 'f'].map(function (k) {
+          return '<td class="pick" data-i="' + i + '" tabindex="0" role="button" aria-label="Zet rij ' + (i + 1) + ' in de schakeling">' + row[k] + '</td>';
+        }).join('');
+      if (state.help) COLS.forEach(function (c) { h += cellHtml(i, c.k); });
+      h += cellHtml(i, 'q').replace('<td>', '<td class="q">') + '</tr>';
+    });
+    tableEl.innerHTML = h + '</tbody></table>';
+  }
+
+  function setRowIn(i) {
+    var r = state.rows[i];
+    state.vals.A = r.a; state.vals.B = r.b; state.vals.C = r.c;
+    state.vals.D = r.d; state.vals.F = r.f;
+    renderCircuit();
+  }
+
+  tableEl.addEventListener('click', function (e) {
+    var cell = e.target.closest('.cell');
+    if (cell) {
+      var i = +cell.getAttribute('data-i'), k = cell.getAttribute('data-k');
+      var row = state.rows[i];
+      row[k] = row[k] === 0 ? 1 : 0;
+      row.m = {};
+      setStatus('', '');
+      renderTable();
+      var again = tableEl.querySelector('.cell[data-i="' + i + '"][data-k="' + k + '"]');
+      if (again) again.focus();
+      return;
+    }
+    var pk = e.target.closest('td.pick');
+    if (pk) setRowIn(+pk.getAttribute('data-i'));
+  });
+
+  tableEl.addEventListener('keydown', function (e) {
+    var pk = e.target.closest && e.target.closest('td.pick');
+    if (pk && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setRowIn(+pk.getAttribute('data-i')); }
+  });
+
+  document.getElementById('check').addEventListener('click', function () {
+    var keys = state.help ? KEYS : ['q'], wrong = 0, total = 0;
+    state.rows.forEach(function (row) {
+      var t = truth(row);
+      row.m = {};
+      keys.forEach(function (k) {
+        total++;
+        if (row[k] === t[k]) row.m[k] = 'ok'; else { row.m[k] = 'bad'; wrong++; }
+      });
+    });
+    renderTable();
+
+    var circuitOk = evalCircuit(def, state.vals).q === 1;
+    if (wrong === 0 && circuitOk) {
+      setStatus('Alles goed. Alle ' + total + ' vakjes kloppen. De schakeling is ook goed!', 'good');
+      openModal();
+    } else {
+      var message = '';
+      if (wrong === 0) {
+        message += 'Je hebt de tabel goed ingevuld. ';
+      } else {
+        message += 'Je moet nog ' + wrong + ' vakjes van de ' + total + ' goed invullen. ';
+      }
+      if (circuitOk) {
+        message += 'Je hebt de schakeling goed ingevuld. ';
+      } else {
+        message += 'De schakeling is nog niet goed ingevuld. ';
+      }
+      setStatus(message, 'warn');
+    }
+  });
+
+  document.getElementById('reveal').addEventListener('click', function () {
+    state.rows.forEach(function (row) {
+      var t = truth(row);
+      KEYS.forEach(function (k) { row[k] = t[k]; });
+      row.m = {};
+    });
+    setStatus('Dit is het juiste antwoord. Kun je bij elke rij uitleggen waarom?', '');
+    renderTable();
+  });
+  document.getElementById('clear').addEventListener('click', function () {
+    state.rows.forEach(function (row) { KEYS.forEach(function (k) { row[k] = null; }); row.m = {}; });
+    setStatus('', '');
+    renderTable();
+  });
+  document.getElementById('help').addEventListener('change', function (e) {
+    state.help = e.target.checked;
+    state.rows.forEach(function (row) { row.m = {}; });
+    setStatus('', '');
+    renderTable();
+  });
+  var formulaEl = document.getElementById('formula');
+  var formulaBtn = document.getElementById('formula-btn');
+  formulaBtn.addEventListener('click', function () {
+    formulaEl.hidden = !formulaEl.hidden;
+    formulaBtn.textContent = formulaEl.hidden ? 'Toon formule' : 'Verberg formule';
+    formulaBtn.setAttribute('aria-expanded', formulaEl.hidden ? 'false' : 'true');
+  });
+
+  bindInputs(circuitEl, state.vals, renderCircuit);
+  renderCircuit();
+})();
+</script>
+</body>
+</html>
