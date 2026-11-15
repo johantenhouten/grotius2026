@@ -1,2 +1,3 @@
 # grotius2026
-Workshop AppInspector
+Booleaanse algebra
+
