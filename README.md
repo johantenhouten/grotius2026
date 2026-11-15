@@ -16,4 +16,6 @@ Waarheid tabel met poort logica logica
 
 #### ARDUINO opdracht - LAB Escape
 
-<a href="lab_escape.pdf">Ontsnap uit het geheime laboratorium</a>
+<a href="jetpack.mpg">Jetpack Joyride - introductie video</a>
+
+<a href="lab_escape.pdf">Instructies ontsnappen uit het geheime laboratorium</a>
