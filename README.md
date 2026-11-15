@@ -19,7 +19,7 @@ Waarheid tabel met poort logica logica
 Jetpack Joyride - introductie video
 
 <video width="400" controls>
-  <source src=""jetpack.mpg"" type="video/mp4">
+  <source src=""jetpack.mp4"" type="video/mp4">
   Your browser does not support HTML video.
 </video>
 
