@@ -9,8 +9,8 @@ Waarheid tabel met poort logica logica
 
 #### Spelen met poorten
 
-<a href="opdracht 1.html">Opdracht 1</a>
+<a href="opdracht-1.html">Opdracht met And pporten</a>
 
-<a href="opdracht 2.html">Opdracht 2</a>
+<a href="opdracht-2.html">Complexe Opdracht</a>
 
-<a href="opdracht 3.html">Opdracht 3</a>
+
