@@ -2,7 +2,7 @@
 
 Keuze modeule K - computer architectuur
 
-### 1 Booleaanse algebra
+### Booleaanse algebra
 van logica (socrates) naar Boole
 Introductie poort logica
 Waarheid tabel met poort logica logica
@@ -14,3 +14,6 @@ Waarheid tabel met poort logica logica
 <a href="opdracht-2.html">Complexe opdracht</a>
 
 
+#### ARDUINO opdracht - LAB Escape
+
+<a href="lab_escape.pdf">Ontsnap uit het geheime laboratorium</a>
